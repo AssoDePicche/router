@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Http;
+namespace Http\Exception;
 
-final class InternalServerError extends \Error
+final class InternalServerError extends \ErrorException
 {
   public function __construct()
   {
