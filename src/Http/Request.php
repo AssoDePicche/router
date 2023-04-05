@@ -6,20 +6,33 @@ namespace Http;
 
 final readonly class Request
 {
-    public string $method, $uri;
+    public function __construct(
+        public array $request,
+        public array $query,
+        public array $cookies,
+        public array $files,
+        public array $server
+    ) {
+    }
 
-    public array $headers, $params, $vars;
-
-    public function __construct()
+    public function getURI(): string
     {
-        $this->headers = getallheaders();
+        return $this->server['REQUEST_URI'];
+    }
 
-        $this->params = $_GET ?? [];
+    public function getMethod(): string
+    {
+        return $this->server['REQUEST_METHOD'];
+    }
 
-        $this->vars = $_POST ?? [];
-
-        $this->method = $_SERVER['REQUEST_METHOD'] ?? '';
-
-        $this->uri = $_SERVER['REQUEST_URI'] ?? '';
+    public static function createFromGlobals(): static
+    {
+        return new static(
+            $_POST,
+            $_GET,
+            $_COOKIE,
+            $_FILES,
+            $_SERVER
+        );
     }
 }
