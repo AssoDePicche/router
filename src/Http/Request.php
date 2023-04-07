@@ -17,12 +17,12 @@ final readonly class Request
 
     public function getURI(): string
     {
-        return $this->server['REQUEST_URI'];
+        return $this->server['REQUEST_URI'] ?? '';
     }
 
     public function getMethod(): string
     {
-        return $this->server['REQUEST_METHOD'];
+        return $this->server['REQUEST_METHOD'] ?? '';
     }
 
     public static function createFromGlobals(): static
