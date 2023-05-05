@@ -4,39 +4,33 @@ declare(strict_types=1);
 
 namespace Http;
 
+use BadMethodCallException;
+use Closure;
+use Exception;
+use Http\Enum\Method;
+use Http\Exception\InternalServerError;
+use Http\Exception\MethodNotAllowedException;
+use Http\Exception\NotFoundException;
 use Http\Response;
+use ReflectionFunction;
 
 final class Router
 {
-    private readonly string $prefix;
-
     private array $routes = [];
-
-    private readonly Request $request;
-
-    public function __construct(
-        private readonly string $url
-    ) {
-        $this->request = Request::createFromGlobals();
-
-        $this->prefix = parse_url($url, PHP_URL_PATH) ?? '';
-    }
 
     public function __call(string $methodName, array $methodParams): void
     {
-        $allowedMethods = ['GET', 'POST'];
+        $allowedMethods = [Method::GET, Method::POST];
 
         $methodName = strtoupper($methodName);
 
-        if (false === in_array($methodName, $allowedMethods)) {
-            throw new \BadMethodCallException('Invalid Method Name');
-        }
+        !in_array($methodName, $allowedMethods) && throw new BadMethodCallException('Invalid Method Name');
 
         [$route, $callback] = $methodParams;
 
         $routeParameters = ['controller' => [], 'variable' => []];
 
-        if ($callback instanceof \Closure) {
+        if ($callback instanceof Closure) {
             $routeParameters['controller'] = $callback;
         }
 
@@ -53,15 +47,11 @@ final class Router
         $this->routes[$routePattern][$methodName] = $routeParameters;
     }
 
-    private function getRoute(): mixed
+    private function getRoute(Request $request): array
     {
-        $uri = $this->request->getURI();
+        $route = $request->getURI();
 
-        $uri = strlen($this->prefix) ? explode($this->prefix, $uri) : [$uri];
-
-        $route = end($uri);
-
-        $httpMethod = $this->request->getMethod();
+        $httpMethod = $request->getMethod();
 
         foreach ($this->routes as $routePattern => $method) {
             if (!preg_match($routePattern, $route, $matches)) {
@@ -75,29 +65,27 @@ final class Router
 
                 $method[$httpMethod]['variable'] = array_combine($keys, $matches);
 
-                $method[$httpMethod]['variable']['request'] = $this->request;
+                $method[$httpMethod]['variable']['request'] = $request;
 
                 return $method[$httpMethod];
             }
 
-            throw new \Http\Exception\MethodNotAllowedException;
+            throw new MethodNotAllowedException;
         }
 
-        throw new \Http\Exception\NotFoundException;
+        throw new NotFoundException;
     }
 
-    public function run(): Response
+    public function handle(Request $request): Response
     {
         try {
-            $route = $this->getRoute();
+            $route = $this->getRoute($request);
 
-            if (!isset($route['controller'])) {
-                throw new \Http\Exception\InternalServerError;
-            }
+            !($route['controller'] instanceof Closure) && throw new InternalServerError;
 
             $args = [];
 
-            $reflection = new \ReflectionFunction($route['controller']);
+            $reflection = new ReflectionFunction($route['controller']);
 
             foreach ($reflection->getParameters() as $parameter) {
                 $parameterName = $parameter->getName();
@@ -106,11 +94,8 @@ final class Router
             }
 
             return call_user_func_array($route['controller'], $args);
-        } catch (\Exception $exception) {
-            return new Response(
-                $exception->getMessage(),
-                $exception->getCode()
-            );
+        } catch (Exception $exception) {
+            return Response::createFromException($exception);
         }
     }
 }
