@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Http;
 
+use Http\Enum\StatusCode;
+
 final readonly class Response
 {
     public function __construct(
         public string $content = '',
-        public int $statusCode = 200,
+        public int $statusCode = StatusCode::OK,
         public array $headers = []
     ) {
     }
