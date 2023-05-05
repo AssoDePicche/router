@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Http;
 
+use Exception;
 use Http\Enum\StatusCode;
 
 final readonly class Response
@@ -24,5 +25,13 @@ final readonly class Response
         }
 
         echo $this->content;
+    }
+
+    public static function createFromException(Exception $exception): static
+    {
+        return new static(
+            $exception->getMessage(),
+            $exception->getCode()
+        );
     }
 }
