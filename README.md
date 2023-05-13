@@ -15,7 +15,7 @@ To contribuit to this project [follow these steps](./CONTRIBUTING).
 1. Clone this repository
 
 ```bash
-git clone https://github.com/AssoDePicche/router.git
+git clone git@github.com:AssoDePicche/router.git
 ```
 
 2. Instantiate the router class and call the get or post methods passing them the route and a callback
@@ -25,7 +25,7 @@ git clone https://github.com/AssoDePicche/router.git
 
 $router = new \Http\Router;
 
-$router->get('/home', fn () => new Reponse('Hello, World!'));
+$router->get('/home', fn () => new \Http\Reponse('Hello, World!'));
 ```
 
 3. Create a request instance from global and pass it to the handle method of the router instance
@@ -48,4 +48,4 @@ $response->send();
 
 ## Get in touch
 
-Samuel do Prado Rodrigues (AssoDePicche) - samuelprado730@gmail.com
+Samuel do Prado Rodrigues (AssoDePicche) - <samuelprado730@gmail.com>
