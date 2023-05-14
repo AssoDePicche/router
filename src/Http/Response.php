@@ -27,7 +27,7 @@ final readonly class Response
         echo $this->content;
     }
 
-    public static function createFromException(Exception $exception): static
+    public static function createFromException(Exception $exception): self
     {
         return new static(
             $exception->getMessage(),
