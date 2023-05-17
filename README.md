@@ -5,6 +5,9 @@ PHP Router project
 ## Project Structure
 
 1. `src:` source code
+    - `Http:` domain dir with main classes
+        - `Enum:` enums
+        - `Exception:` exception and error classes
 
 ## Contributing
 
