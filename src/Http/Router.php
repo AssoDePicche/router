@@ -20,7 +20,7 @@ final class Router
 
     public function __call(string $methodName, array $methodParams): void
     {
-        $allowedMethods = [Method::GET, Method::POST];
+        $allowedMethods = [Method::DELETE, Method::GET, Method::PATCH, Method::POST, Method::PUT];
 
         $methodName = strtoupper($methodName);
 
