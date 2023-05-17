@@ -24,12 +24,12 @@ final readonly class Response
             header($key . ':' . $value);
         }
 
-        echo $this->content;
+        echo $this->content . PHP_EOL;
     }
 
     public static function createFromException(Exception $exception): self
     {
-        return new static(
+        return new self(
             $exception->getMessage(),
             $exception->getCode()
         );
